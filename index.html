@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="su">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Neon Piano Tiles - Futuristic Beats</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Éfék Neon Glow */
+        .neon-glow-blue {
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.6);
+            text-shadow: 0 0 10px rgba(14, 165, 233, 0.8);
+        }
+
+        .neon-glow-purple {
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
+        }
+
+        .neon-border {
+            border: 2px solid rgba(14, 165, 233, 0.4);
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.2);
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Nyumputkeun Scrollbar */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        @keyframes milestone-unlock {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.5); filter: brightness(2); }
+            100% { transform: scale(1); filter: brightness(1.2); }
+        }
+
+        .unlock-anim {
+            animation: milestone-unlock 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-white p-3">
+
+    <!-- Éfék Background Grid Obah -->
+    <div class="absolute inset-0 z-0 pointer-events-none opacity-20 bg-[linear-gradient(rgba(14,165,233,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(14,165,233,0.1)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+
+    <!-- Wadah Utama Kaulinan -->
+    <div class="relative w-full max-w-[485px] h-[95vh] max-h-[880px] rounded-[2.5rem] overflow-hidden glass-panel border border-indigo-500/30 flex flex-col z-10 shadow-2xl shadow-indigo-500/10">
+        
+        <!-- HEADER KAULINAN (Skor, Milestones Real-time, Combo, Pause) -->
+        <div id="game-header" class="hidden absolute top-0 left-0 right-0 p-5 flex items-center justify-between z-30 pointer-events-none">
+            <!-- Skor -->
+            <div class="flex flex-col">
+                <span class="text-xs uppercase tracking-widest text-slate-400 font-bold">Skor</span>
+                <span id="score-val" class="text-3xl font-bold font-orbitron text-sky-400 drop-shadow-[0_0_10px_rgba(14,165,233,0.6)]">0</span>
+            </div>
+            
+            <!-- Milestones & Combo Real-time: 3 Bentang & 3 Makuta (Jarak ditingkatkan agar lebih lega) -->
+            <div class="flex flex-col items-center gap-1">
+                <div id="game-milestones" class="flex gap-3.5 items-center bg-slate-950/60 px-4 py-1.5 rounded-full border border-white/10 pointer-events-auto">
+                    <!-- Bentang (Mengubah gap dari 0.5 ke 2 agar memiliki jarak yang pas) -->
+                    <div class="flex gap-2">
+                        <svg id="g-star-1" class="w-4 h-4 text-slate-700 transition-all duration-300" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192L12 .587z"/>
+                        </svg>
+                        <svg id="g-star-2" class="w-4 h-4 text-slate-700 transition-all duration-300" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192L12 .587z"/>
+                        </svg>
+                        <svg id="g-star-3" class="w-4 h-4 text-slate-700 transition-all duration-300" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192L12 .587z"/>
+                        </svg>
+                    </div>
+                    <span class="text-slate-600 font-bold text-[10px] mx-1">|</span>
+                    <!-- Makuta (Mengubah gap dari 0.5 ke 2 agar memiliki jarak yang pas) -->
+                    <div class="flex gap-2">
+                        <svg id="g-crown-1" class="w-4 h-4 text-slate-700 transition-all duration-300" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2 22h20v-2H2v2zm1-4h18l-2-7-4 4-3-8-3 8-4-4-2 7z"/>
+                        </svg>
+                        <svg id="g-crown-2" class="w-4 h-4 text-slate-700 transition-all duration-300" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2 22h20v-2H2v2zm1-4h18l-2-7-4 4-3-8-3 8-4-4-2 7z"/>
+                        </svg>
+                        <svg id="g-crown-3" class="w-4 h-4 text-slate-700 transition-all duration-300" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2 22h20v-2H2v2zm1-4h18l-2-7-4 4-3-8-3 8-4-4-2 7z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Indikator Kombo -->
+                <div id="combo-container" class="opacity-0 transform scale-75 transition-all duration-200 flex flex-col items-center pointer-events-auto">
+                    <span class="text-[10px] uppercase font-black text-purple-400 tracking-wider">KOMBO</span>
+                    <span id="combo-val" class="text-lg font-black font-orbitron text-purple-300 drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]">0x</span>
+                </div>
+            </div>
+
+            <!-- Tombol Reureuh (Pause) -->
+            <button id="btn-pause" class="pointer-events-auto bg-slate-900/80 p-2.5 rounded-full border border-sky-500/30 hover:border-sky-400 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sky-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- CANVAS UTAMA KAULINAN -->
+        <div class="relative flex-1 w-full h-full">
+            <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+        </div>
+
+        <!-- MENU UTAMA OVERLAY -->
+        <div id="menu-overlay" class="absolute inset-0 z-40 flex flex-col justify-between p-8 bg-slate-950/90 text-center transition-all duration-300">
+            <!-- Logo & Judul -->
+            <div class="mt-8">
+                <h1 class="text-5xl font-black tracking-tighter font-orbitron text-transparent bg-clip-text bg-gradient-to-br from-sky-400 to-purple-500 drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                    NEON<br>TILES
+                </h1>
+                <p class="text-sm text-sky-300/60 uppercase tracking-widest mt-2 font-bold font-orbitron">Futuristic Music Arcade</p>
+                
+                <!-- Skor Pangluhurna -->
+                <div class="mt-6 inline-block bg-slate-900/60 border border-purple-500/20 px-6 py-2 rounded-2xl">
+                    <span class="text-xs uppercase text-slate-400 font-bold tracking-wider">Skor Pangluhurna</span>
+                    <p id="high-score-val" class="text-2xl font-bold font-orbitron text-purple-400">0</p>
+                </div>
+            </div>
+
+            <!-- Setélan Tingkat Kasusahan -->
+            <div class="my-4">
+                <span class="text-xs uppercase text-slate-400 tracking-wider font-bold block mb-3">Pilih Kasusahan</span>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setDifficulty('easy')" id="diff-easy" class="py-2.5 rounded-xl font-bold text-sm tracking-wider transition-all border border-emerald-500/30 text-emerald-400 bg-emerald-950/20 font-orbitron">Gampil</button>
+                    <button onclick="setDifficulty('medium')" id="diff-medium" class="py-2.5 rounded-xl font-bold text-sm tracking-wider transition-all border border-sky-500/30 text-sky-400 bg-sky-950/20 font-orbitron">Sedeng</button>
+                    <button onclick="setDifficulty('hard')" id="diff-hard" class="py-2.5 rounded-xl font-bold text-sm tracking-wider transition-all border border-purple-500/30 text-purple-400 bg-purple-950/20 font-orbitron">Hesé</button>
+                </div>
+            </div>
+
+            <!-- Pamilihan Lagu Utama -->
+            <div class="mb-4">
+                <span class="text-xs uppercase text-slate-400 tracking-wider font-bold block mb-2">Pilih Lagu</span>
+                <select id="song-select" class="w-full bg-slate-900 text-sky-400 font-semibold px-4 py-3 rounded-xl border border-sky-500/30 focus:ring-2 focus:ring-sky-500 cursor-pointer outline-none text-center">
+                    <option value="takInginUsai">🔥 Tak Ingin Usai - Keisya (VIRAL!)</option>
+                    <option value="furElise">🎼 Bagatelle: Für Elise</option>
+                    <option value="twinkle">⭐ Twinkle Twinkle</option>
+                    <option value="jingle">🔔 Jingle Bells</option>
+                    <option value="balonku">🎈 Balonku Ada Lima</option>
+                    <option value="pelangi">🌈 Pelangi-Pelangi</option>
+                    <option value="kartini">🇮🇩 Ibu Kita Kartini</option>
+                    <option value="odeToJoy">🇪🇺 Ode to Joy</option>
+                    <option value="canon">🎻 Canon in D</option>
+                    <option value="apuse">🇮🇩 Apuse - Papua</option>
+                </select>
+            </div>
+
+            <!-- Tombol Mimitian -->
+            <div class="mb-6">
+                <button id="btn-start" class="w-full bg-gradient-to-r from-sky-500 to-purple-600 hover:from-sky-400 hover:to-purple-500 text-white font-bold py-4 rounded-2xl text-lg font-orbitron tracking-widest uppercase shadow-lg shadow-sky-500/20 active:scale-95 transition-all">
+                    Mulai Maén
+                </button>
+                <p class="text-xs text-slate-500 mt-4">Ketuk ubin hideung. Anggo tombol [ C ] [ V ] [ N ] [ M ] atanapi rampa layar.</p>
+                <p class="text-xs text-sky-400 font-bold mt-2 animate-pulse">Pencet [ SPASI ] kanggo Ngawitan Maén!</p>
+            </div>
+        </div>
+
+        <!-- PAUSE MENU OVERLAY -->
+        <div id="pause-overlay" class="hidden absolute inset-0 z-40 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center">
+            <h2 class="text-4xl font-bold font-orbitron text-sky-400 tracking-wide mb-8 drop-shadow-[0_0_10px_rgba(14,165,233,0.6)]">KAULINAN DIREUREUHKEUN</h2>
+            
+            <div class="flex flex-col gap-4 w-full max-w-[280px]">
+                <button id="btn-resume" class="w-full bg-gradient-to-r from-sky-500 to-purple-500 text-white font-bold py-3.5 rounded-xl font-orbitron tracking-wider uppercase active:scale-95 transition-all">
+                    Teraskeun
+                </button>
+                <button id="btn-restart" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-xl font-orbitron tracking-wider uppercase active:scale-95 transition-all">
+                    Mimitian Deui
+                </button>
+                <button id="btn-home" class="w-full bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-400 font-bold py-3.5 rounded-xl font-orbitron tracking-wider uppercase active:scale-95 transition-all">
+                    Menu Utama
+                </button>
+            </div>
+            <p class="text-xs text-sky-400 mt-6 animate-pulse">Pencet [ SPASI ] kanggo Neraskeun!</p>
+        </div>
+
+        <!-- GAME OVER / KEMENANGAN OVERLAY -->
+        <div id="gameover-overlay" class="hidden absolute inset-0 z-40 bg-slate-950/95 flex flex-col justify-between p-8 text-center animate-fade-in">
+            <div class="mt-10 flex flex-col items-center">
+                <!-- Dekorasi Tiga Makuta -->
+                <div class="flex justify-center items-end gap-2 mb-1" id="crowns-container">
+                    <svg id="crown-1" class="w-8 h-8 text-slate-700 transition-all duration-500" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2 22h20v-2H2v2zm1-4h18l-2-7-4 4-3-8-3 8-4-4-2 7z"/>
+                    </svg>
+                    <svg id="crown-2" class="w-10 h-10 text-slate-700 transition-all duration-500 -mb-1" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2 22h20v-2H2v2zm1-4h18l-2-7-4 4-3-8-3 8-4-4-2 7z"/>
+                    </svg>
+                    <svg id="crown-3" class="w-8 h-8 text-slate-700 transition-all duration-500" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2 22h20v-2H2v2zm1-4h18l-2-7-4 4-3-8-3 8-4-4-2 7z"/>
+                    </svg>
+                </div>
+                <!-- Dekorasi Tiga Bentang -->
+                <div class="flex justify-center items-end gap-2 mb-4" id="stars-container">
+                    <svg id="star-1" class="w-8 h-8 text-slate-700 transition-all duration-500" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192L12 .587z"/>
+                    </svg>
+                    <svg id="star-2" class="w-10 h-10 text-slate-700 transition-all duration-500 -mb-0.5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192L12 .587z"/>
+                    </svg>
+                    <svg id="star-3" class="w-8 h-8 text-slate-700 transition-all duration-500" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192L12 .587z"/>
+                    </svg>
+                </div>
+
+                <h2 id="gameover-title" class="text-5xl font-black font-orbitron text-red-500 tracking-wider mb-2 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">GAME OVER</h2>
+                <p id="gameover-reason" class="text-sm text-slate-400 italic">Anjeun kaliwat ubin hideung!</p>
+            </div>
+
+            <!-- Informasi Skor Akhir -->
+            <div class="bg-slate-900/80 border border-red-500/20 p-6 rounded-2xl w-full max-w-[320px] mx-auto my-4">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-slate-400 font-bold text-sm uppercase">Skor Anjeun</span>
+                    <span id="final-score" class="text-3xl font-bold font-orbitron text-sky-400">0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400 font-bold text-sm uppercase">Kombo Maks</span>
+                    <span id="final-combo" class="text-2xl font-bold font-orbitron text-purple-400">0x</span>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi -->
+            <div class="mb-6 flex flex-col gap-3 w-full">
+                <button id="btn-retry" class="w-full bg-gradient-to-r from-sky-500 to-purple-600 hover:from-sky-400 hover:to-purple-500 text-white font-bold py-4 rounded-xl font-orbitron tracking-widest uppercase active:scale-95 transition-all font-orbitron font-bold">
+                    Maén Deui
+                </button>
+                <button id="btn-home-go" class="w-full bg-slate-900 border border-slate-800 text-slate-400 font-bold py-3 rounded-xl font-orbitron tracking-wider uppercase hover:bg-slate-800 transition-all font-orbitron font-bold">
+                    Mulang
+                </button>
+            </div>
+            <p class="text-xs text-sky-400 mb-4 animate-pulse">Pencet [ SPASI ] kanggo Maén Deui!</p>
+        </div>
+
+        <!-- Tombol Bantuan Kontrol Keyboard -->
+        <div class="absolute bottom-6 left-0 right-0 flex justify-around px-4 pointer-events-none opacity-45 z-20">
+            <div class="text-[10px] font-orbitron font-bold border border-white/20 bg-black/60 px-2.5 py-1 rounded">C</div>
+            <div class="text-[10px] font-orbitron font-bold border border-white/20 bg-black/60 px-2.5 py-1 rounded">V</div>
+            <div class="text-[10px] font-orbitron font-bold border border-white/20 bg-black/60 px-2.5 py-1 rounded">N</div>
+            <div class="text-[10px] font-orbitron font-bold border border-white/20 bg-black/60 px-2.5 py-1 rounded">M</div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- INISIALISASI AUDIO (Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // --- DATABASE NADA LAGU ---
+        const takInginUsaiNotes = [
+            { note: 'F#4', freq: 369.99 }, { note: 'G#4', freq: 415.30 }, { note: 'A#4', freq: 466.16 },
+            { note: 'A#4', freq: 466.16 }, { note: 'G#4', freq: 415.30 }, { note: 'F#4', freq: 369.99 },
+            { note: 'F#4', freq: 369.99 }, { note: 'F#4', freq: 369.99 }, { note: 'F#4', freq: 369.99 },
+            { note: 'F#4', freq: 369.99 }, { note: 'G#4', freq: 415.30 }, { note: 'A#4', freq: 466.16 },
+            { note: 'G#4', freq: 415.30 }, { note: 'F#4', freq: 369.99 }, { note: 'F#4', freq: 369.99 },
+            { note: 'F#4', freq: 369.99 }, { note: 'G#4', freq: 415.30 }, { note: 'A#4', freq: 466.16 },
+            { note: 'B4', freq: 493.88 }, { note: 'C#5', freq: 554.37 }, { note: 'A#4', freq: 466.16 },
+            { note: 'A#4', freq: 466.16 }, { note: 'G#4', freq: 415.30 }, { note: 'F#4', freq: 369.99 },
+            { note: 'F#4', freq: 369.99 }, { note: 'G#4', freq: 415.30 }, { note: 'F#4', freq: 369.99 }
+        ];
+
+        const furEliseNotes = [
+            { note: 'E5', freq: 659.25 }, { note: 'D#5', freq: 622.25 }, { note: 'E5', freq: 659.25 },
+            { note: 'D#5', freq: 622.25 }, { note: 'E5', freq: 659.25 }, { note: 'B4', freq: 493.88 },
+            { note: 'D5', freq: 587.33 }, { note: 'C5', freq: 523.25 }, { note: 'A4', freq: 440.00 },
+            { note: 'C3', freq: 130.81 }, { note: 'E3', freq: 164.81 }, { note: 'A3', freq: 220.00 },
+            { note: 'C4', freq: 261.63 }, { note: 'E4', py: 0, freq: 329.63 }, { note: 'A4', freq: 440.00 },
+            { note: 'B4', freq: 493.88 }
+        ];
+
+        const twinkleNotes = [
+            { note: 'C4', freq: 261.63 }, { note: 'C4', freq: 261.63 }, { note: 'G4', freq: 392.00 },
+            { note: 'G4', freq: 392.00 }, { note: 'A4', freq: 440.00 }, { note: 'A4', freq: 440.00 },
+            { note: 'G4', freq: 392.00 }, { note: 'F4', freq: 349.23 }, { note: 'F4', freq: 349.23 },
+            { note: 'E4', freq: 329.63 }, { note: 'E4', freq: 329.63 }, { note: 'D4', freq: 293.66 },
+            { note: 'D4', freq: 293.66 }, { note: 'C4', freq: 261.63 }
+        ];
+
+        const jingleNotes = [
+            { note: 'E4', freq: 329.63 }, { note: 'E4', freq: 329.63 }, { note: 'E4', freq: 329.63 },
+            { note: 'E4', freq: 329.63 }, { note: 'E4', freq: 329.63 }, { note: 'E4', freq: 329.63 },
+            { note: 'E4', freq: 329.63 }, { note: 'G4', freq: 392.00 }, { note: 'C4', freq: 261.63 },
+            { note: 'D4', freq: 293.66 }, { note: 'E4', freq: 329.63 }, { note: 'F4', freq: 349.23 },
+            { note: 'F4', freq: 349.23 }, { note: 'F4', freq: 349.23 }, { note: 'F4', freq: 349.23 }
+        ];
+
+        const balonkuNotes = [
+            { note: 'G4', freq: 392.00 }, { note: 'A4', freq: 440.00 }, { note: 'B4', freq: 493.88 },
+            { note: 'A4', freq: 440.00 }, { note: 'G4', freq: 392.00 }, { note: 'C5', freq: 523.25 },
+            { note: 'B4', freq: 493.88 }, { note: 'A4', freq: 440.00 }, { note: 'G4', freq: 392.00 },
+            { note: 'F4', freq: 349.23 }, { note: 'D4', freq: 293.66 }, { note: 'E4', freq: 329.63 },
+            { note: 'F4', freq: 349.23 }, { note: 'E4', freq: 329.63 }, { note: 'D4', freq: 293.66 }
+        ];
+
+        const pelangiNotes = [
+            { note: 'G4', freq: 392.00 }, { note: 'D4', freq: 293.66 }, { note: 'E4', freq: 329.63 },
+            { note: 'C4', freq: 261.63 }, { note: 'G4', freq: 392.00 }, { note: 'A4', freq: 440.00 },
+            { note: 'G4', freq: 392.00 }, { note: 'F4', freq: 349.23 }, { note: 'F4', freq: 349.23 },
+            { note: 'D4', freq: 293.66 }, { note: 'E4', freq: 329.63 }, { note: 'D4', freq: 293.66 }
+        ];
+
+        const kartiniNotes = [
+            { note: 'C4', freq: 261.63 }, { note: 'D4', freq: 293.66 }, { note: 'E4', freq: 329.63 },
+            { note: 'F4', freq: 349.23 }, { note: 'G4', freq: 392.00 }, { note: 'E4', freq: 329.63 },
+            { note: 'C4', freq: 261.63 }, { note: 'A4', freq: 440.00 }, { note: 'C5', freq: 523.25 },
+            { note: 'B4', freq: 493.88 }, { note: 'A4', freq: 440.00 }, { note: 'G4', freq: 392.00 }
+        ];
+
+        const odeToJoyNotes = [
+            { note: 'E4', freq: 329.63 }, { note: 'E4', freq: 329.63 }, { note: 'F4', freq: 349.23 },
+            { note: 'G4', freq: 392.00 }, { note: 'G4', freq: 392.00 }, { note: 'F4', freq: 349.23 },
+            { note: 'E4', freq: 329.63 }, { note: 'D4', freq: 293.66 }
+        ];
+
+        const canonNotes = [
+            { note: 'F#4', freq: 369.99 }, { note: 'E4', freq: 329.63 }, { note: 'D4', freq: 293.66 },
+            { note: 'C#4', freq: 277.18 }, { note: 'B4', freq: 493.88 }, { note: 'A4', freq: 440.00 },
+            { note: 'B4', freq: 493.88 }, { note: 'C#5', freq: 554.37 }
+        ];
+
+        const apuseNotes = [
+            { note: 'E4', freq: 329.63 }, { note: 'G4', freq: 392.00 }, { note: 'C5', freq: 523.25 },
+            { note: 'C5', freq: 523.25 }, { note: 'B4', freq: 493.88 }, { note: 'A4', freq: 440.00 },
+            { note: 'G4', freq: 392.00 }, { note: 'A4', freq: 440.00 }
+        ];
+
+        const songDatabases = {
+            takInginUsai: takInginUsaiNotes,
+            furElise: furEliseNotes,
+            twinkle: twinkleNotes,
+            jingle: jingleNotes,
+            balonku: balonkuNotes,
+            pelangi: pelangiNotes,
+            kartini: kartiniNotes,
+            odeToJoy: odeToJoyNotes,
+            canon: canonNotes,
+            apuse: apuseNotes
+        };
+
+        let activeSongNotes = takInginUsaiNotes; // Lagu nu nuju aktip
+        let noteIndex = 0; // Penunjuk nada ayeuna
+
+        // --- SISTEM INSTRUMEN PIANO ---
+        function playPianoSound(freq) {
+            const now = audioCtx.currentTime;
+            
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(freq, now);
+            
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(freq * 1.003, now); 
+
+            // Envelope ADSR
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.5, now + 0.01); 
+            gainNode.gain.exponentialRampToValueAtTime(0.15, now + 0.3); 
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.2); 
+
+            osc1.connect(gainNode);
+            osc2.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + 1.3);
+            osc2.stop(now + 1.3);
+        }
+
+        // --- SISTEM GAME CANVAS ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Variabel Kaayaan Kaulinan (Game State)
+        let gameState = 'MENU'; 
+        let score = 0;
+        let highScore = parseInt(localStorage.getItem('neon_tiles_high_score')) || 0;
+        let combo = 0;
+        let maxCombo = 0;
+        let difficulty = 'medium'; 
+        
+        let baseSpeed = 6.5; 
+        let currentSpeed = 6.5;
+        let lastTime = 0;
+
+        // Entitas Kaulinan
+        let tiles = [];
+        let particles = [];
+        const columns = 4;
+        const columnWidth = () => canvas.width / columns;
+
+        const keyMap = { 'c': 0, 'v': 1, 'n': 2, 'm': 3 };
+
+        // Setélan Kasusahan Kaulinan
+        function setDifficulty(diff) {
+            difficulty = diff;
+            const buttons = {
+                easy: document.getElementById('diff-easy'),
+                medium: document.getElementById('diff-medium'),
+                hard: document.getElementById('diff-hard')
+            };
+            
+            Object.keys(buttons).forEach(key => {
+                buttons[key].className = "py-2.5 rounded-xl font-bold text-sm tracking-wider transition-all border border-slate-700 text-slate-500 bg-slate-900/40";
+            });
+
+            if (diff === 'easy') {
+                buttons.easy.className = "py-2.5 rounded-xl font-bold text-sm tracking-wider transition-all border border-emerald-500/30 text-emerald-400 bg-emerald-950/20 font-orbitron";
+                baseSpeed = 5.0; 
+            } else if (diff === 'medium') {
+                buttons.medium.className = "py-2.5 rounded-xl font-bold text-sm tracking-wider transition-all border border-sky-500/30 text-sky-400 bg-sky-950/20 font-orbitron";
+                baseSpeed = 6.5; 
+            } else if (diff === 'hard') {
+                buttons.hard.className = "py-2.5 rounded-xl font-bold text-sm tracking-wider transition-all border border-purple-500/30 text-purple-400 bg-purple-950/20 font-orbitron";
+                baseSpeed = 8.5; 
+            }
+            currentSpeed = baseSpeed;
+        }
+
+        // Maénkeun Nada Salajengna (Lagu henteu ngulang/looping)
+        function playNextSongNote() {
+            // Upami nada parantos béak, tong maénkeun deui
+            if (noteIndex >= activeSongNotes.length) {
+                return;
+            }
+
+            const songNote = activeSongNotes[noteIndex];
+            playPianoSound(songNote.freq);
+            noteIndex++;
+        }
+
+        // Partikel Éfék Sumpit Neon
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 4 + 2;
+                this.speedX = (Math.random() - 0.5) * 8;
+                this.speedY = (Math.random() - 0.5) * 8;
+                this.color = color;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.02 + 0.015;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.alpha -= this.decay;
+            }
+        }
+
+        // Objek Kotak/Ubin Piano
+        class Tile {
+            constructor(column, y = -180, height = 160) {
+                this.column = column;
+                this.y = y;
+                this.width = columnWidth();
+                this.height = height;
+                this.isPressed = false;
+                this.missed = false;
+                this.color = 'rgba(2, 6, 23, 0.95)';
+            }
+
+            draw() {
+                const x = this.column * columnWidth();
+                ctx.save();
+
+                if (this.isPressed) {
+                    const hitGrad = ctx.createLinearGradient(x, this.y, x, this.y + this.height);
+                    hitGrad.addColorStop(0, 'rgba(14, 165, 233, 0.1)');
+                    hitGrad.addColorStop(1, 'rgba(168, 85, 247, 0.2)');
+                    ctx.fillStyle = hitGrad;
+                    ctx.fillRect(x + 2, this.y, this.width - 4, this.height);
+                    
+                    ctx.strokeStyle = '#38bdf8';
+                    ctx.lineWidth = 3;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#0ea5e9';
+                    ctx.beginPath();
+                    ctx.moveTo(x + 2, this.y + this.height);
+                    ctx.lineTo(x + this.width - 2, this.y + this.height);
+                    ctx.stroke();
+                } else {
+                    const grad = ctx.createLinearGradient(x, this.y, x, this.y + this.height);
+                    grad.addColorStop(0, '#1e1b4b');
+                    grad.addColorStop(1, '#090514');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(x + 3, this.y, this.width - 6, this.height);
+
+                    ctx.strokeStyle = this.missed ? '#ef4444' : '#818cf8';
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(x + 3, this.y, this.width - 6, this.height);
+
+                    ctx.fillStyle = 'rgba(129, 140, 248, 0.15)';
+                    ctx.fillRect(x + this.width/2 - 12, this.y + this.height/2 - 12, 24, 24);
+                }
+
+                ctx.restore();
+            }
+
+            update() {
+                this.y += currentSpeed;
+                this.width = columnWidth();
+            }
+        }
+
+        // Ngawitan Maénkeun Game
+        function startGame() {
+            document.getElementById('menu-overlay').classList.add('hidden');
+            document.getElementById('gameover-overlay').classList.add('hidden');
+            document.getElementById('pause-overlay').classList.add('hidden');
+            document.getElementById('game-header').classList.remove('hidden');
+            
+            gameState = 'PLAYING';
+            score = 0;
+            combo = 0;
+            maxCombo = 0;
+            noteIndex = 0;
+            currentSpeed = baseSpeed;
+            tiles = [];
+            particles = [];
+            
+            document.getElementById('score-val').innerText = '0';
+            updateComboUI();
+            resetRealtimeMilestones(); 
+
+            spawnFirstTiles();
+            
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function spawnFirstTiles() {
+            let startY = -120;
+            // Spawn ubin terbatas dumasar kana panjangna lagu
+            const spawnCount = Math.min(4, activeSongNotes.length);
+            for (let i = 0; i < spawnCount; i++) {
+                const randomCol = Math.floor(Math.random() * columns);
+                tiles.push(new Tile(randomCol, startY));
+                startY -= 220;
+            }
+        }
+
+        // Spawn ubin énggal di luhur salami lagu can réngsé
+        function spawnTile() {
+            // Upami sadaya ubin nada parantos di-spawn (score + ubin di layar >= total nada)
+            // Ulah spawn ubin énggal deui supados tiasa réngsé
+            const totalSpawned = score + tiles.length;
+            if (totalSpawned >= activeSongNotes.length) {
+                return;
+            }
+
+            const randomCol = Math.floor(Math.random() * columns);
+            let minY = 0;
+            tiles.forEach(tile => {
+                if (tile.y < minY) {
+                    minY = tile.y;
+                }
+            });
+            tiles.push(new Tile(randomCol, minY - 220));
+        }
+
+        // Fungsi bantu kanggo nampi nilai wates (milestone) anu singkron sareng konsisten
+        function getMilestoneScores(totalNotes) {
+            return {
+                star1: Math.max(1, Math.floor(totalNotes * 0.2)),
+                star2: Math.max(2, Math.floor(totalNotes * 0.4)),
+                star3: Math.max(3, Math.floor(totalNotes * 0.6)),
+                crown1: Math.max(4, Math.floor(totalNotes * 0.8)),
+                crown2: Math.max(5, Math.floor(totalNotes * 0.9)),
+                crown3: totalNotes
+            };
+        }
+
+        function resetRealtimeMilestones() {
+            const gStars = ['g-star-1', 'g-star-2', 'g-star-3'];
+            const gCrowns = ['g-crown-1', 'g-crown-2', 'g-crown-3'];
+
+            gStars.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('text-amber-400', 'drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]', 'unlock-anim');
+                el.classList.add('text-slate-700');
+            });
+            gCrowns.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('text-purple-400', 'drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]', 'unlock-anim');
+                el.classList.add('text-slate-700');
+            });
+        }
+
+        // Fungsi Update Milestones dumasar skala dinamis panjangna lagu
+        function updateRealtimeMilestones() {
+            const totalNotes = activeSongNotes.length;
+            const ms = getMilestoneScores(totalNotes);
+            const milestones = [
+                { id: 'g-star-1', score: ms.star1, colorClass: 'text-amber-400', shadowClass: 'drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' },
+                { id: 'g-star-2', score: ms.star2, colorClass: 'text-amber-400', shadowClass: 'drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' },
+                { id: 'g-star-3', score: ms.star3, colorClass: 'text-amber-400', shadowClass: 'drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' },
+                { id: 'g-crown-1', score: ms.crown1, colorClass: 'text-purple-400', shadowClass: 'drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]' },
+                { id: 'g-crown-2', score: ms.crown2, colorClass: 'text-purple-400', shadowClass: 'drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]' },
+                { id: 'g-crown-3', score: ms.crown3, colorClass: 'text-purple-400', shadowClass: 'drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]' }
+            ];
+
+            milestones.forEach(m => {
+                const el = document.getElementById(m.id);
+                if (score >= m.score) {
+                    if (el.classList.contains('text-slate-700')) {
+                        el.classList.remove('text-slate-700');
+                        el.classList.add(m.colorClass, m.shadowClass, 'unlock-anim');
+                    }
+                }
+            });
+        }
+
+        // Pemicu Game Over atawa meunang (Tamat)
+        function triggerGameOver(reason, isWin = false) {
+            gameState = 'GAMEOVER';
+            document.getElementById('game-header').classList.add('hidden');
+            document.getElementById('gameover-overlay').classList.remove('hidden');
+            
+            // Setél judul jeung kelir dumasar kana hasil
+            const titleEl = document.getElementById('gameover-title');
+            if (isWin) {
+                titleEl.innerText = "LAGU RÉNGSÉ!";
+                titleEl.className = "text-5xl font-black font-orbitron text-emerald-400 tracking-wider mb-2 drop-shadow-[0_0_15px_rgba(52,211,153,0.6)] font-orbitron";
+                document.getElementById('gameover-reason').innerText = "Wilujeng! Anjeun parantos meunang makuta!";
+            } else {
+                titleEl.innerText = "GAME OVER";
+                titleEl.className = "text-5xl font-black font-orbitron text-red-500 tracking-wider mb-2 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)] font-orbitron";
+                document.getElementById('gameover-reason').innerText = reason;
+            }
+
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-combo').innerText = maxCombo + 'x';
+
+            const crowns = [
+                document.getElementById('crown-1'),
+                document.getElementById('crown-2'),
+                document.getElementById('crown-3')
+            ];
+            const stars = [
+                document.getElementById('star-1'),
+                document.getElementById('star-2'),
+                document.getElementById('star-3')
+            ];
+
+            crowns.forEach(c => {
+                c.classList.remove('text-purple-400', 'drop-shadow-[0_0_12px_rgba(168,85,247,0.9)]');
+                c.classList.add('text-slate-700');
+            });
+            stars.forEach(s => {
+                s.classList.remove('text-amber-400', 'drop-shadow-[0_0_12px_rgba(245,158,11,0.9)]');
+                s.classList.add('text-slate-700');
+            });
+
+            const totalNotes = activeSongNotes.length;
+            const ms = getMilestoneScores(totalNotes);
+            let activeStars = 0;
+            let activeCrowns = 0;
+
+            if (score >= ms.star3) activeStars = 3;
+            else if (score >= ms.star2) activeStars = 2;
+            else if (score >= ms.star1) activeStars = 1;
+
+            if (score >= ms.crown3) activeCrowns = 3;
+            else if (score >= ms.crown2) activeCrowns = 2;
+            else if (score >= ms.crown1) activeCrowns = 1;
+
+            for (let i = 0; i < activeStars; i++) {
+                if (stars[i]) {
+                    stars[i].classList.remove('text-slate-700');
+                    stars[i].classList.add('text-amber-400', 'drop-shadow-[0_0_12px_rgba(245,158,11,0.9)]');
+                }
+            }
+            for (let i = 0; i < activeCrowns; i++) {
+                if (crowns[i]) {
+                    crowns[i].classList.remove('text-slate-700');
+                    crowns[i].classList.add('text-purple-400', 'drop-shadow-[0_0_12px_rgba(168,85,247,0.9)]');
+                }
+            }
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('neon_tiles_high_score', score);
+                document.getElementById('high-score-val').innerText = highScore;
+            }
+        }
+
+        // Ketukan ubin anu suksés
+        function handleTileHit(tile, touchX, touchY) {
+            tile.isPressed = true;
+            score++;
+            combo++;
+            if (combo > maxCombo) maxCombo = combo;
+            
+            document.getElementById('score-val').innerText = score;
+            updateComboUI();
+            updateRealtimeMilestones(); 
+
+            // Atur kacepatan sacara undak-undakan pas pisan ngaliwatan saban milestone béntang & makuta
+            const totalNotes = activeSongNotes.length;
+            const ms = getMilestoneScores(totalNotes);
+            let speedBoost = 0;
+            
+            // Laju ubin sacara eksplisit nambihan pas pisan nincak unggal milestone bintang sareng makuta
+            if (score >= ms.star1) speedBoost += 0.5;   // Béntang 1 (20%)
+            if (score >= ms.star2) speedBoost += 0.5;   // Béntang 2 (40%)
+            if (score >= ms.star3) speedBoost += 0.5;   // Béntang 3 (60%)
+            if (score >= ms.crown1) speedBoost += 0.8;  // Makuta 1 (80%)
+            if (score >= ms.crown2) speedBoost += 0.8;  // Makuta 2 (90%)
+            if (score >= ms.crown3) speedBoost += 0.8;  // Makuta 3 (100%)
+
+            currentSpeed = baseSpeed + speedBoost;
+
+            playNextSongNote();
+
+            const px = touchX || (tile.column * columnWidth() + columnWidth()/2);
+            const py = touchY || (tile.y + tile.height - 20);
+            
+            const particleColor = combo > 10 ? '#c084fc' : '#38bdf8';
+            for (let i = 0; i < 12; i++) {
+                particles.push(new Particle(px, py, particleColor));
+            }
+        }
+
+        // Logika Interaksi Toél / Pencet
+        function handleInteraction(clientX, clientY) {
+            if (gameState !== 'PLAYING') return;
+
+            const rect = canvas.getBoundingClientRect();
+            const relativeX = clientX - rect.left;
+            const relativeY = clientY - rect.top;
+
+            const col = Math.floor(relativeX / columnWidth());
+
+            let targetTile = null;
+            let lowestY = -Infinity;
+
+            tiles.forEach(tile => {
+                if (tile.column === col && !tile.isPressed) {
+                    if (tile.y > lowestY) {
+                        lowestY = tile.y;
+                        targetTile = tile;
+                    }
+                }
+            });
+
+            if (targetTile && relativeY >= targetTile.y - 60 && relativeY <= targetTile.y + targetTile.height + 60) {
+                handleTileHit(targetTile, relativeX, relativeY);
+            } else {
+                triggerGameOver("Anjeun mencet area anu kosong!");
+                for (let i = 0; i < 15; i++) {
+                    particles.push(new Particle(relativeX, relativeY, '#ef4444'));
+                }
+            }
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            handleInteraction(e.clientX, e.clientY);
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            handleInteraction(touch.clientX, touch.clientY);
+        }, { passive: false });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.code === 'Space') {
+                e.preventDefault(); 
+                if (gameState === 'MENU') {
+                    if (audioCtx.state === 'suspended') {
+                        audioCtx.resume();
+                    }
+                    startGame();
+                } else if (gameState === 'GAMEOVER') {
+                    startGame();
+                } else if (gameState === 'PAUSED') {
+                    gameState = 'PLAYING';
+                    document.getElementById('pause-overlay').classList.add('hidden');
+                    lastTime = performance.now();
+                    requestAnimationFrame(gameLoop);
+                }
+                return;
+            }
+
+            if (gameState !== 'PLAYING') return;
+            const key = e.key.toLowerCase();
+            if (key in keyMap) {
+                const col = keyMap[key];
+                
+                let targetTile = null;
+                let lowestY = -Infinity;
+                tiles.forEach(tile => {
+                    if (tile.column === col && !tile.isPressed) {
+                        if (tile.y > lowestY) {
+                            lowestY = tile.y;
+                            targetTile = tile;
+                        }
+                    }
+                });
+
+                if (targetTile && targetTile.y + targetTile.height > canvas.height * 0.3) {
+                    handleTileHit(targetTile);
+                } else {
+                    triggerGameOver("Mencet tombol gancang teuing!");
+                }
+            }
+        });
+
+        function updateComboUI() {
+            const container = document.getElementById('combo-container');
+            const val = document.getElementById('combo-val');
+            
+            if (combo >= 3) {
+                container.style.opacity = '1';
+                container.classList.remove('scale-75');
+                container.classList.add('scale-110');
+                val.innerText = combo + 'x';
+                
+                if (combo > 10) {
+                    val.classList.add('text-purple-300');
+                }
+            } else {
+                container.style.opacity = '0';
+                container.classList.add('scale-75');
+            }
+        }
+
+        // --- GAME LOOP UTAMA ---
+        function gameLoop(timestamp) {
+            if (gameState !== 'PLAYING') return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Mun lagu geus bener-bener réngsé sarta ubin panungtung geus dipencet nepi ka béak ti layar
+            if (score >= activeSongNotes.length && tiles.length === 0) {
+                triggerGameOver("Wilujeng! Anjeun namatkeun lagu!", true);
+                return;
+            }
+
+            for (let i = 1; i < columns; i++) {
+                ctx.strokeStyle = 'rgba(99, 102, 241, 0.15)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(i * columnWidth(), 0);
+                ctx.lineTo(i * columnWidth(), canvas.height);
+                ctx.stroke();
+            }
+
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - 120);
+            ctx.lineTo(canvas.width, canvas.height - 120);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            for (let i = tiles.length - 1; i >= 0; i--) {
+                const tile = tiles[i];
+                tile.update();
+                tile.draw();
+
+                if (!tile.isPressed && tile.y > canvas.height - 80) {
+                    tile.missed = true;
+                    triggerGameOver("Anjeun kaliwat ubin hideung!");
+                    break;
+                }
+
+                if (tile.y > canvas.height) {
+                    tiles.splice(i, 1);
+                    spawnTile();
+                }
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.update();
+                p.draw();
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // --- SISTEM PEMILIHAN LAGU ---
+        document.getElementById('song-select').onchange = (e) => {
+            const selectedNotes = songDatabases[e.target.value];
+            if (selectedNotes) {
+                activeSongNotes = selectedNotes;
+                noteIndex = 0; 
+                playPianoSound(activeSongNotes[0].freq);
+            }
+        };
+
+        document.getElementById('btn-start').onclick = () => {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            startGame();
+        };
+
+        document.getElementById('btn-pause').onclick = () => {
+            gameState = 'PAUSED';
+            document.getElementById('pause-overlay').classList.remove('hidden');
+        };
+
+        document.getElementById('btn-resume').onclick = () => {
+            gameState = 'PLAYING';
+            document.getElementById('pause-overlay').classList.add('hidden');
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        };
+
+        document.getElementById('btn-restart').onclick = () => {
+            startGame();
+        };
+
+        document.getElementById('btn-home').onclick = () => {
+            document.getElementById('pause-overlay').classList.add('hidden');
+            document.getElementById('menu-overlay').classList.remove('hidden');
+            document.getElementById('game-header').classList.add('hidden');
+            gameState = 'MENU';
+        };
+
+        document.getElementById('btn-retry').onclick = () => {
+            startGame();
+        };
+
+        document.getElementById('btn-home-go').onclick = () => {
+            document.getElementById('gameover-overlay').classList.add('hidden');
+            document.getElementById('menu-overlay').classList.remove('hidden');
+            gameState = 'MENU';
+        };
+
+        document.getElementById('high-score-val').innerText = highScore;
+        setDifficulty('medium');
+    </script>
+</body>
+</html>
